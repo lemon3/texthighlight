@@ -76,12 +76,13 @@ class TextHighlight {
       result += text.substring(indEnd);
     }
 
+    console.log(element);
     if (element.append) {
-      element.innerHTML = result;
+      element.innerHTML = '\n'+ result;
     } else {
       // must be wrapped
       const span = document.createElement('span');
-      span.innerHTML = result;
+      span.innerHTML = '\n' + result + '\n';
       element.parentNode.replaceChild(span, element);
 
       element = span;
@@ -156,10 +157,8 @@ class TextHighlight {
       const len = word.length - (regexMode ? 2 : 0);
 
       if (regexMode) {
-        // regex mode
         word = word.substring(1, word.length - 1);
       } else {
-        // normal mode (escape special chars)
         word = word.replace(/([()[{*+.$^\\|?])/g, '\\$1');
 
         if (this.settings.fullwordonly) {
@@ -177,12 +176,8 @@ class TextHighlight {
       }
     }
 
-    // if (regexMode) {
     let flags = this.settings.caseSensitive ? 'g' : 'gi';
     this.word = new RegExp(word, flags);
-    // } else {
-    //   this.word = word;
-    // }
 
     this._hlSection(element, this.word);
   }
@@ -194,11 +189,8 @@ class TextHighlight {
    * @memberof Highlighter
    */
   update(word) {
-    let start = new Date().getMilliseconds();
     this.reset();
     this._hl(word);
-    let end = new Date().getMilliseconds();
-    console.log(end - start);
   }
 
   /**
@@ -214,8 +206,6 @@ class TextHighlight {
           const text = el.parentElement.innerText;
           el.parentElement.innerText = text;
         }
-        // const text = el.innerText;
-        // el.parentNode.replaceChild(document.createTextNode(text), el);
       });
 
     if (this.settings.highlightSection) {

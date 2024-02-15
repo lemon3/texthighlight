@@ -16,21 +16,37 @@ body {
   width: 100%;
   text-align: justify;
 }
+#test {
+  padding-top: 20px;
+  position: relative;
+}
 .highlight {
   background-color: rgb(255, 231, 16);
   color: #333;
 }
+.highlight2 {
+  background-color: rgb(175, 231, 198);
+  color: #333;
+}
 .panel {
   padding: 10px;
-  background-color: #fff;
-  border: 1px solid black;
-  position: fixed;
+  background-color: #60d3f0;
+  position: absolute;
   top: 0;
   right: 0;
 }
 .panel p {
   margin: 0;
   padding: 0;
+}
+.panel input {
+  font-size: 16px;
+  border: none;
+  padding: 0.25em 0.5em;
+}
+.panel input:focus {
+  outline: none;
+  box-shadow: 0px 2px 6px 0px rgb(15 24 89 / 30%);
 }
 .section-highlight {
   background-color: aliceblue;

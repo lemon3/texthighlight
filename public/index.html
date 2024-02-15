@@ -12,13 +12,13 @@
     <div class="page">
       <div id="test">
         <h1>Debitis lorem</h1>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reprehenderit
+        Lorem ipsum dolor sit amet, consectetur <span style="text-decoration: underline;">adipisicing</span> elit. Reprehenderit
         ratione impedit ipsum dolorem eveniet, tenetur commodi excepturi sunt
         in, earum autem molestias velit labore atque nisi molestiae asperiores
         corporis perspiciatis. Neque cupiditate itaque corporis natus est
         exercitationem soluta.
         <p>
-          Eum neque, ipsa tempore ex iusto non inventore numquam magnam ut. Eos
+          Eum neque, ipsa tempore ex iusto non <span style="text-decoration: underline;">inventore</span> numquam magnam ut. Eos
           optio assumenda ullam vitae, iure doloremque exercitationem. Minus
           accusamus sint vel eos adipisci culpa architecto animi id eaque
           mollitia enim amet quasi deleniti, ipsa tempora commodi laudantium at
@@ -30,6 +30,12 @@
           eaque suscipit aliquid cupiditate sunt at iure dolore aspernatur
           dolor, modi voluptatum excepturi, nostrum unde consequatur!
         </p>
+        <div class="panel">
+          <p>type here: <span id="found"></span></p>
+          <input id="inp" type="text" class="highlight-input" value="" />
+        </div>
+      </div>
+      <div id="test2">
         <h2>maiores dolore blanditiis voluptatem</h2>
         <form action="#">
           <input type="text" name="fistname" id="" placeholder="lorem1" />
@@ -103,18 +109,10 @@ Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam optio totam e
           const lorem = 'lorem';
         </script>
       </div>
-
-      <div class="panel">
-        <p>type here:</p>
-        <input id="inp" type="text" class="highlight-input" value="" />
-        <div id="found"></div>
-      </div>
     </div>
 
     <script src="./texthighlight.js"></script>
     <script>
-      // import TextHighlight from './texthighlight.js';
-
       const getUriParams = () => {
         const query_string = {};
         const query = window.location.search.substring(1);
@@ -134,21 +132,32 @@ Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam optio totam e
 
         // setup
         const found = document.querySelector('#found');
+
         const options = {
-          word: hltext,
+          // word: hltext,
         };
-
-        const el = document.querySelectorAll('#test')[0];
-        const thl = new TextHighlight(null, options);
+        const el = document.querySelector('#test');
+        const thl = new TextHighlight(el, options);
         found.innerHTML = thl.getCount();
-
         const inp = document.querySelector('#inp');
 
-        inp.value = hltext;
-        inp.addEventListener('input', (evt) => {
+        const onInput = (evt) => {
           thl.update(evt.target.value);
-          found.innerHTML = thl.getCount();
-        });
+          const count = thl.getCount();
+          let txt = count > 0 ? `#${count}` : '';
+          found.innerHTML = txt;
+        };
+        inp.addEventListener('input', onInput);
+
+        inp.value = hltext;
+        inp.dispatchEvent(new Event('input'));
+
+        // const options2 = {
+        //   word: 'ipsum',
+        //   className: 'highlight2',
+        // };
+        // const el2 = document.querySelector('#test2');
+        // const thl2 = new TextHighlight(el2, options2);
       };
 
       if ('complete' === document.readyState) {
