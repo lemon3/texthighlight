@@ -1,0 +1,45 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  font-size: 16px;
+  line-height: 1.4em;
+}
+.page {
+  margin: 0 auto;
+  padding: 1em;
+  max-width: 640px;
+  font-size: 12px;
+  width: 100%;
+  text-align: justify;
+}
+.highlight {
+  background-color: #f0f;
+  color: #fff;
+}
+.highlight2 {
+  background-color: rgb(255, 231, 16);
+  color: #333;
+}
+.panel {
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid black;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+.panel p {
+  margin: 0;
+  padding: 0;
+}
+.section-highlight {
+  background-color: aliceblue;
+}
+textarea {
+  display: block;
+  margin: 1em 0;
+}
