@@ -23,9 +23,7 @@ var TextHighlight = /*#__PURE__*/function () {
       return text.match(regex);
     });
     if (!element) {
-      return {
-        error: true
-      };
+      element = document.body;
     }
     element = 'string' === typeof element ? document.querySelector(element) : element;
     if (null === element || 0 === element.length) {
@@ -33,7 +31,7 @@ var TextHighlight = /*#__PURE__*/function () {
         error: true
       };
     }
-    this.options = options; // user options
+    this.options = options || {}; // user options
     this.settings = Object.assign({}, TextHighlight.defaults, options);
     this.element = element;
     this._found = 0;

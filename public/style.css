@@ -17,10 +17,6 @@ body {
   text-align: justify;
 }
 .highlight {
-  background-color: #f0f;
-  color: #fff;
-}
-.highlight2 {
   background-color: rgb(255, 231, 16);
   color: #333;
 }
@@ -30,7 +26,7 @@ body {
   border: 1px solid black;
   position: fixed;
   top: 0;
-  left: 0;
+  right: 0;
 }
 .panel p {
   margin: 0;

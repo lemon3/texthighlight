@@ -6,4 +6,6 @@ module.exports = {
 
   // Production build files
   build: path.resolve(__dirname, '../dist'),
+
+  public: path.resolve(__dirname, '../public'),
 };

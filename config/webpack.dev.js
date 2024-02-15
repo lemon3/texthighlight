@@ -6,25 +6,23 @@ module.exports = merge(common, {
   mode: 'development',
   devtool: 'inline-source-map', // 'eval-cheap-source-map',
   output: {
-    filename: '[name].min.js',
+    filename: '[name].js',
     library: {
-      name: 'BirthdayPicker',
+      name: 'TextHighlight',
       type: 'umd',
       umdNamedDefine: true,
       export: 'default',
     },
     globalObject: 'this',
     clean: true,
-
   },
 
-  module: {
-    rules: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: ['babel-loader'],
-      },
-    ],
+  // dev server
+  devServer: {
+    historyApiFallback: true,
+    open: true,
+    compress: true,
+    hot: true,
+    port: 8888,
   },
 });

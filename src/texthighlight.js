@@ -7,7 +7,7 @@
 class TextHighlight {
   constructor(element, options) {
     if (!element) {
-      return { error: true };
+      element = document.body;
     }
 
     element =
@@ -17,7 +17,7 @@ class TextHighlight {
       return { error: true };
     }
 
-    this.options = options; // user options
+    this.options = options || {}; // user options
     this.settings = Object.assign({}, TextHighlight.defaults, options);
     this.element = element;
     this._found = 0;
