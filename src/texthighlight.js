@@ -78,7 +78,7 @@ class TextHighlight {
 
     console.log(element);
     if (element.append) {
-      element.innerHTML = '\n'+ result;
+      element.innerHTML = '\n' + result;
     } else {
       // must be wrapped
       const span = document.createElement('span');
