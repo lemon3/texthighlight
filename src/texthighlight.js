@@ -22,129 +22,136 @@ class TextHighlight {
     this.element = element;
     this._found = 0;
 
+    this.rand = (Math.random() * 1000000) << 0;
+
     if (this.settings.autoinit) {
       this.init();
     }
   }
 
-  _wrapWords(element, word = this.word) {
-    const text = (element.innerText || element.textContent).trim();
-    if (!text.length) {
+  notAllowedNodes = /script|textarea|input/;
+
+  /**
+   * check if given element contains the given input word
+   *
+   * @param {*} element the element within which to search
+   * @param {*} regex the word to search for as regex
+   * @return {*}  {boolean}
+   * @memberof TextHighlight
+   */
+  _hasWord(element, regex) {
+    const text = element.textContent;
+    if (!element.textContent.trim()) {
+      return false;
+    }
+    return text.match(regex) ? true : false;
+  }
+
+  /**
+   * check if the given node allowed nodes
+   *
+   * @param {*} node the node to test
+   * @return {boolean} if the given node is allowed or not
+   * @memberof TextHighlight
+   */
+  _isNodesAllowed(node) {
+    const name = node.nodeName.toLowerCase();
+    return !name.match(this.notAllowedNodes);
+  }
+
+  /**
+   *
+   *
+   * @param {*} element the parent-element of the found text
+   * @param {*} regex the text to search for
+   * @return {*}
+   * @memberof TextHighlight
+   */
+  _markText(element, regex) {
+    if (!element.data) {
       return;
     }
 
-    const wrapStart = `<span class="${this.settings.className}">`;
-    const wrapEnd = '</span>';
+    const pa = element.parentNode;
     let result = '';
-    let match;
+    let str = element.data;
+    let marked = 0;
 
-    // no limit
-    if (!this.settings.max) {
-      match = text.match(word);
-      if (!match) {
-        return;
+    while (str && null !== (result = regex.exec(str))) {
+      let el = document.createElement('span');
+      el.className = this.settings.className;
+
+      el.appendChild(document.createTextNode(result[0]));
+      element.replaceData(result.index, result[0].length, '');
+      element = element.splitText(result.index);
+      marked++;
+      str = element.data;
+
+      // mark as beeing used
+      el.dataset['marked-' + this.rand] = true;
+
+      if (str) {
+        pa.insertBefore(el, element);
+      } else {
+        pa.appendChild(el);
+        break;
       }
-      this._found += match.length;
-      result = text.replaceAll(word, `${wrapStart}$&${wrapEnd}`);
-    } else {
-      let indStart = 0;
-      let indEnd = 0;
-
-      for (const m of text.matchAll(word)) {
-        indEnd = m.index + m[0].length;
-        result += text
-          .substring(indStart, indEnd)
-          .replace(m[0], wrapStart + m[0] + wrapEnd);
-        if (this.settings.max && ++this._found === this.settings.max) {
-          break;
-        }
-        indStart = indEnd;
-      }
-
-      // while ((match = word.exec(text)) !== null) {
-      //   indEnd = word.lastIndex;
-      //   result += text
-      //     .substring(indStart, indEnd)
-      //     .replace(match[0], wrapStart + match[0] + wrapEnd);
-      //   this._found++;
-      //   if (this.settings.max && this._found === this.settings.max) {
-      //     break;
-      //   }
-      //   indStart = indEnd;
-      // }
-
-      result += text.substring(indEnd);
     }
 
-    console.log(element);
-    if (element.append) {
-      element.innerHTML = '\n' + result;
-    } else {
-      // must be wrapped
-      const span = document.createElement('span');
-      span.innerHTML = '\n' + result + '\n';
-      element.parentNode.replaceChild(span, element);
-
-      element = span;
-    }
-
-    return element;
+    return marked;
   }
 
-  _hasWord = (text, regex = this.word) => text.match(regex);
-
-  _childNodesAllowed(node) {
-    let ignore = true;
-    const name = node.nodeName.toLowerCase();
-    if ('script' === name || 'textarea' === name) {
-      ignore = false;
-    }
-    return ignore;
-  }
-
-  _hlSection(element) {
-    const text = (element.innerText || element.textContent).trim();
+  /**
+   * finds all word/texts within the main element (search area)
+   * skips not allowed nodes.
+   *
+   * @param {*} element the parent-element within which to search
+   * @param {*} regex the text to search for
+   * @return {*}
+   * @memberof TextHighlight
+   */
+  _find(element, regex) {
     if (
-      '' === text ||
+      !element ||
+      element.dataset['marked-' + this.rand] ||
       (this.settings.max && this._found >= this.settings.max)
     ) {
       return;
     }
 
-    const children = element.childNodes;
-
-    if (
-      ((1 === element.nodeType && 0 === element.children.length) ||
-        0 === children.length) &&
-      this._hasWord(text)
-    ) {
-      const el = this._wrapWords(element);
-      // this.collection.push(element);
-      if (
-        this.settings.highlightSection &&
-        !el.classList.contains(this.settings.sectionClassName)
-      ) {
-        el.classList.add(this.settings.sectionClassName);
+    element = element.firstChild;
+    while (null !== element && this._isNodesAllowed(element)) {
+      if (3 === element.nodeType) {
+        if (this._hasWord(element, regex)) {
+          let found = this._markText(element, regex);
+          this._found += found;
+          // this.collection.push(element);
+          let parent = element.parentElement;
+          if (
+            this.settings.highlightSection &&
+            !parent.classList.contains(this.settings.sectionClassName)
+          ) {
+            parent.classList.add(this.settings.sectionClassName);
+          }
+        }
+      } else {
+        this._find(element, regex);
       }
-      return;
+
+      element = element.nextSibling;
     }
-
-    children.forEach((child) => {
-      if (this._childNodesAllowed(child)) {
-        this._hlSection(child);
-      }
-    });
   }
 
   /**
-   * Highlight the word for the given element
+   * Contruct the regex for word searching
    *
-   * @param {*} word
-   * @param {*} [element=this.element]
-   * @memberof Highlighter
+   * @param {*} element the parent-element within which to search
+   * @param {*} word the text to search for
+   * @return {*}
+   * @memberof TextHighlight
    */
-  _hl(word, element = this.element) {
-    if (!word) {
+  _start(element, word) {
+    if (!element || !word) {
       return;
     }
 
@@ -170,27 +177,35 @@ class TextHighlight {
         }
       }
 
-      if (len < this.settings.minInput) {
+      if (
+        len < this.settings.minInput ||
+        (this.settings.maxInput && len > this.settings.maxInput)
+      ) {
         this.reset();
         return;
       }
     }
 
     let flags = this.settings.caseSensitive ? 'g' : 'gi';
-    this.word = new RegExp(word, flags);
+    let regex = new RegExp(word, flags);
 
-    this._hlSection(element, this.word);
+    // store original input
+    this.input = word;
+    this._find(element, regex);
   }
 
   /**
    * Update the word
    *
-   * @param {*} word
+   * @param {*} word the text to search for
    * @memberof Highlighter
    */
   update(word) {
+    // if (word === this.input) {
+    //   return;
+    // }
     this.reset();
-    this._hl(word);
+    this._start(this.element, word);
   }
 
   /**
@@ -202,10 +217,15 @@ class TextHighlight {
     this.element
       .querySelectorAll('.' + this.settings.className)
       .forEach((el) => {
-        if (el.parentElement) {
-          const text = el.parentElement.innerText;
-          el.parentElement.innerText = text;
+        const parent = el.parentElement;
+        let text;
+        if (el.childNodes.length > 1) {
+          text = el.innerText;
+        } else {
+          text = el.childNodes[0].data;
         }
+        parent.replaceChild(document.createTextNode(text), el);
+        parent.normalize();
       });
 
     if (this.settings.highlightSection) {
@@ -222,7 +242,7 @@ class TextHighlight {
   /**
    * returns the number of found words
    *
-   * @return {*}
+   * @return {*} Number of found items within the main element (search area)
    * @memberof TextHighlight
    */
   getCount() {
@@ -242,7 +262,7 @@ class TextHighlight {
 
     const word = this.settings.word;
     if (word) {
-      this._hl(word);
+      this._start(this.element, word);
     }
   }
 }
@@ -251,8 +271,9 @@ class TextHighlight {
 TextHighlight.defaults = {
   autoinit: true,
   word: null,
-  max: 100, // max elements to highlight
+  max: null, // max elements to highlight
   minInput: 2, // min input to trigger highlight
+  maxInput: null, // max input to trigger highlight
   caseSensitive: false,
   fullwordonly: false, // mark only if the full word is given
   markwholeWord: false, // mark the whole word (if a part is selected)

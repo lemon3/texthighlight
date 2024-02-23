@@ -8,27 +8,29 @@
     <link rel="stylesheet" href="./style.css" />
   </head>
 
-  <body>
+  <body class="dark">
     <div class="page">
       <div id="test">
         <h1>Debitis lorem</h1>
-        Lorem ipsum dolor sit amet, consectetur <span style="text-decoration: underline;">adipisicing</span> elit. Reprehenderit
-        ratione impedit ipsum dolorem eveniet, tenetur commodi excepturi sunt
-        in, earum autem molestias velit labore atque nisi molestiae asperiores
-        corporis perspiciatis. Neque cupiditate itaque corporis natus est
-        exercitationem soluta.
+        Lorem ipsum dolor sit amet, consectetur
+        <span style="text-decoration: underline">adipisicing</span> elit.
+        Reprehenderit ratione impedit ipsum dolorem eveniet, tenetur commodi
+        excepturi sunt in, earum autem molestias velit labore atque nisi
+        molestiae asperiores corporis perspiciatis. Neque cupiditate itaque
+        corporis natus est exercitationem soluta.
         <p>
-          Eum neque, ipsa tempore ex iusto non <span style="text-decoration: underline;">inventore</span> numquam magnam ut. Eos
-          optio assumenda ullam vitae, iure doloremque exercitationem. Minus
-          accusamus sint vel eos adipisci culpa architecto animi id eaque
-          mollitia enim amet quasi deleniti, ipsa tempora commodi laudantium at
-          ab minima aperiam repellat. Unde, odio quisquam explicabo aliquam,
-          quia a cupiditate at nulla, eaque magni provident placeat sequi ab
-          aspernatur fuga hic nobis sit illo sint. Sequi atque quis, a molestiae
-          quam. A nihil facilis quasi molestias hic doloribus dolore numquam
-          perferendis impedit. Voluptate error beatae magnam aut velit iusto
-          eaque suscipit aliquid cupiditate sunt at iure dolore aspernatur
-          dolor, modi voluptatum excepturi, nostrum unde consequatur!
+          Eum neque, ipsa tempore ex iusto non
+          <span style="text-decoration: underline">inventore</span> numquam
+          magnam ut. Eos optio assumenda ullam vitae, iure doloremque
+          exercitationem. Minus accusamus sint vel eos adipisci culpa architecto
+          animi id eaque mollitia enim amet quasi deleniti, ipsa tempora commodi
+          laudantium at ab minima aperiam repellat. Unde, odio quisquam
+          explicabo aliquam, quia a cupiditate at nulla, eaque magni provident
+          placeat sequi ab aspernatur fuga hic nobis sit illo sint. Sequi atque
+          quis, a molestiae quam. A nihil facilis quasi molestias hic doloribus
+          dolore numquam perferendis impedit. Voluptate error beatae magnam aut
+          velit iusto eaque suscipit aliquid cupiditate sunt at iure dolore
+          aspernatur dolor, modi voluptatum excepturi, nostrum unde consequatur!
         </p>
         <div class="panel">
           <p>type here: <span id="found"></span></p>
@@ -128,36 +130,33 @@ Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam optio totam e
 
       const init = () => {
         document.removeEventListener('DOMContentLoaded', init);
+
         let hltext = getUriParams().hl || 'lorem';
 
         // setup
         const found = document.querySelector('#found');
-
-        const options = {
-          // word: hltext,
-        };
         const el = document.querySelector('#test');
-        const thl = new TextHighlight(el, options);
+        const thl = new TextHighlight();
         found.innerHTML = thl.getCount();
         const inp = document.querySelector('#inp');
+
+        const thl2 = new TextHighlight(
+          document.querySelector('#test'), {
+          className: 'highlight2',
+        });
 
         const onInput = (evt) => {
           thl.update(evt.target.value);
           const count = thl.getCount();
           let txt = count > 0 ? `#${count}` : '';
           found.innerHTML = txt;
+          // thl2.update('or');
         };
         inp.addEventListener('input', onInput);
 
         inp.value = hltext;
         inp.dispatchEvent(new Event('input'));
 
-        // const options2 = {
-        //   word: 'ipsum',
-        //   className: 'highlight2',
-        // };
-        // const el2 = document.querySelector('#test2');
-        // const thl2 = new TextHighlight(el2, options2);
       };
 
       if ('complete' === document.readyState) {
