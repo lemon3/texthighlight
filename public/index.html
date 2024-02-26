@@ -140,23 +140,26 @@ Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam optio totam e
         found.innerHTML = thl.getCount();
         const inp = document.querySelector('#inp');
 
-        const thl2 = new TextHighlight(
-          document.querySelector('#test'), {
-          className: 'highlight2',
-        });
+        // const thl2 = new TextHighlight(
+        //   document.querySelector('#test'), {
+        //   className: 'highlight2',
+        // });
 
         const onInput = (evt) => {
-          thl.update(evt.target.value);
+          thl.highlight(evt.target.value);
           const count = thl.getCount();
           let txt = count > 0 ? `#${count}` : '';
           found.innerHTML = txt;
           // thl2.update('or');
         };
+
+        thl.replace('consectetur', 'blumbum');
+        thl.replace(/exerc/gi, '___');
+
         inp.addEventListener('input', onInput);
 
         inp.value = hltext;
         inp.dispatchEvent(new Event('input'));
-
       };
 
       if ('complete' === document.readyState) {

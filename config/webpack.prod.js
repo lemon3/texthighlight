@@ -1,6 +1,15 @@
 /* global require, module */
+const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common');
+const settings = require('../package.json');
+
+const currentYear = (new Date()).getUTCFullYear();
+const banner = `author:  ${settings.author}
+version: ${settings.version}
+(c) 2014-${currentYear} - lemon3.at`;
+
+const plugins = [new webpack.BannerPlugin({ banner })];
 
 const prod = merge(common, {
   mode: 'production',
@@ -8,6 +17,9 @@ const prod = merge(common, {
     minimize: true,
     // mangleExports: 'size',
   },
+
+  plugins,
+
   performance: {
     hints: false,
     maxEntrypointSize: 512000,

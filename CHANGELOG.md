@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.1
+- optimization
+- add regex support
+- add public functions delete, replace
+
 ## v0.2.0
 - bug fixing
 - performace optimization

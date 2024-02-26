@@ -1,9 +1,3 @@
-/*!
- * author: wolfgang jungmayer
- * version: 0.1.0
- * (c) 2014 - 2024
- */
-
 class TextHighlight {
   constructor(element, options) {
     if (!element) {
@@ -101,6 +95,28 @@ class TextHighlight {
     return marked;
   }
 
+  _replaceText(element, regex, newWord) {
+    if (!element.data) {
+      return;
+    }
+
+    let str = element.data;
+    let found = 0;
+    let match = str.match(regex);
+
+    if (!match) {
+      return;
+    }
+    found += match.length;
+    str = str.replaceAll(regex, newWord);
+
+    if (element.data && 3 === element.nodeType) {
+      element.data = str;
+    }
+
+    return found;
+  }
+
   /**
    * finds all word/texts within the main element (search area)
    * skips not allowed nodes.
@@ -123,7 +139,8 @@ class TextHighlight {
     while (null !== element && this._isNodesAllowed(element)) {
       if (3 === element.nodeType) {
         if (this._hasWord(element, regex)) {
-          let found = this._markText(element, regex);
+          let found = this.fun(element, regex);
+          // let found = this._markText(element, regex);
           this._found += found;
           // this.collection.push(element);
           let parent = element.parentElement;
@@ -142,6 +159,56 @@ class TextHighlight {
     }
   }
 
+  _createRegexFromInput(input) {
+    let regexMode = false;
+
+    if (Array.isArray(input)) {
+      // todo join only if minInput legth reached
+      input = input.join('|');
+    } else {
+      input = input.toString();
+
+      let firstInd = input.indexOf('/');
+      let lastInd = input.lastIndexOf('/');
+
+      if (firstInd >= 0 && lastInd > firstInd) {
+        regexMode = true;
+        let flagtmp = input.substr(lastInd + 1);
+        input = input.substr(firstInd + 1, lastInd - 1);
+        if (flagtmp.indexOf('i') >= 0) {
+          this.settings.caseSensitive = false;
+        } else {
+          this.settings.caseSensitive = true;
+        }
+      } else {
+        input = input.replace(/([()[{*+.$^\\|?])/g, '\\$1');
+
+        if (this.settings.fullwordonly) {
+          input = '\\b' + input + '\\b';
+          this.settings.markwholeWord = false;
+        }
+        if (this.settings.markwholeWord) {
+          input = '\\w*' + input + '\\w*';
+        }
+      }
+
+      const len = input.length; //- (regexMode ? 2 : 0);
+
+      if (
+        len < this.settings.minInput ||
+        (this.settings.maxInput && len > this.settings.maxInput) ||
+        (regexMode && input.length <= 2 && input.indexOf('.') >= 0)
+      ) {
+        return false;
+      }
+    }
+
+    let flags = this.settings.caseSensitive ? 'g' : 'gi';
+    let regex = new RegExp(input, flags);
+
+    return regex;
+  }
+
   /**
    * Contruct the regex for word searching
    *
@@ -150,48 +217,18 @@ class TextHighlight {
    * @return {*}
    * @memberof TextHighlight
    */
-  _start(element, word) {
-    if (!element || !word) {
+  _start(element, word = null) {
+    if (!element || null === word) {
       return;
     }
 
-    if (Array.isArray(word)) {
-      // todo join only if minInput legth reached
-      word = word.join('|');
+    const regex = this._createRegexFromInput(word);
+
+    if (regex) {
+      this._find(element, regex);
     } else {
-      // todo test regexMode with regex ;)
-      const regexMode = '/' === word[0] && '/' === word[word.length - 1];
-      const len = word.length - (regexMode ? 2 : 0);
-
-      if (regexMode) {
-        word = word.substring(1, word.length - 1);
-      } else {
-        word = word.replace(/([()[{*+.$^\\|?])/g, '\\$1');
-
-        if (this.settings.fullwordonly) {
-          word = '\\b' + word + '\\b';
-          this.settings.markwholeWord = false;
-        }
-        if (this.settings.markwholeWord) {
-          word = '\\w*' + word + '\\w*';
-        }
-      }
-
-      if (
-        len < this.settings.minInput ||
-        (this.settings.maxInput && len > this.settings.maxInput)
-      ) {
-        this.reset();
-        return;
-      }
+      this.reset();
     }
-
-    let flags = this.settings.caseSensitive ? 'g' : 'gi';
-    let regex = new RegExp(word, flags);
-
-    // store original input
-    this.input = word;
-    this._find(element, regex);
   }
 
   /**
@@ -200,12 +237,46 @@ class TextHighlight {
    * @param {*} word the text to search for
    * @memberof Highlighter
    */
-  update(word) {
-    // if (word === this.input) {
-    //   return;
-    // }
+  highlight(word) {
     this.reset();
+    if (!word || word === this.input) {
+      return;
+    }
+    // store original input
+    this.input = word;
+
+    this.fun = this._markText;
     this._start(this.element, word);
+  }
+
+  /**
+   * delete word
+   *
+   * @param {*} word
+   * @memberof TextHighlight
+   */
+  delete(word) {
+    this.replace(word, '');
+  }
+
+  /**
+   * replace word
+   *
+   * @param {*} word
+   * @param {*} newWord
+   * @return {*}
+   * @memberof TextHighlight
+   */
+  replace(word, newWord) {
+    if (!word || !newWord || word === this.input) {
+      return;
+    }
+
+    // store original input
+    this.input = word;
+
+    this.fun = (element, regex) => this._replaceText(element, regex, newWord);
+    this._start(this.element, word, newWord);
   }
 
   /**
@@ -215,7 +286,8 @@ class TextHighlight {
    */
   reset() {
     this.element
-      .querySelectorAll('.' + this.settings.className)
+      // .querySelectorAll('.' + this.settings.className)
+      .querySelectorAll('[data-marked-' + this.rand + ']')
       .forEach((el) => {
         const parent = el.parentElement;
         let text;
@@ -271,6 +343,7 @@ class TextHighlight {
 TextHighlight.defaults = {
   autoinit: true,
   word: null,
+  replace: null,
   max: null, // max elements to highlight
   minInput: 2, // min input to trigger highlight
   maxInput: null, // max input to trigger highlight

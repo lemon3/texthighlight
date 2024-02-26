@@ -1,27 +1,20 @@
+/*!
+ * author:  wolfgang jungmayer
+ * version: 0.2.1
+ * (c) 2014-2024 - lemon3.at
+ */
 var __webpack_exports__ = {};
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : String(i); }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
-/*!
- * author: wolfgang jungmayer
- * version: 0.1.0
- * (c) 2014 - 2024
- */
 var TextHighlight = /*#__PURE__*/function () {
   function TextHighlight(element, options) {
-    var _this = this;
     _classCallCheck(this, TextHighlight);
-    _defineProperty(this, "_hasWord", function (text) {
-      var regex = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _this.word;
-      return text.match(regex);
-    });
+    _defineProperty(this, "notAllowedNodes", /script|textarea|input/);
     if (!element) {
       element = document.body;
     }
@@ -35,165 +28,253 @@ var TextHighlight = /*#__PURE__*/function () {
     this.settings = Object.assign({}, TextHighlight.defaults, options);
     this.element = element;
     this._found = 0;
+    this.rand = Math.random() * 1000000 << 0;
     if (this.settings.autoinit) {
       this.init();
     }
   }
   _createClass(TextHighlight, [{
-    key: "_wrapWords",
-    value: function _wrapWords(element) {
-      var word = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.word;
-      var text = (element.innerText || element.textContent).trim();
-      if (!text.length) {
-        return;
+    key: "_hasWord",
+    value:
+    /**
+     * check if given element contains the given input word
+     *
+     * @param {*} element the element within which to search
+     * @param {*} regex the word to search for as regex
+     * @return {*}  {boolean}
+     * @memberof TextHighlight
+     */
+    function _hasWord(element, regex) {
+      var text = element.textContent;
+      if (!element.textContent.trim()) {
+        return false;
       }
-      var wrapStart = "<span class=\"".concat(this.settings.className, "\">");
-      var wrapEnd = '</span>';
-      var result = '';
-      var match;
-
-      // no limit
-      if (!this.settings.max) {
-        match = text.match(word);
-        if (!match) {
-          return;
-        }
-        this._found += match.length;
-        result = text.replaceAll(word, "".concat(wrapStart, "$&").concat(wrapEnd));
-      } else {
-        var indStart = 0;
-        var indEnd = 0;
-        var _iterator = _createForOfIteratorHelper(text.matchAll(word)),
-          _step;
-        try {
-          for (_iterator.s(); !(_step = _iterator.n()).done;) {
-            var m = _step.value;
-            indEnd = m.index + m[0].length;
-            result += text.substring(indStart, indEnd).replace(m[0], wrapStart + m[0] + wrapEnd);
-            if (this.settings.max && ++this._found === this.settings.max) {
-              break;
-            }
-            indStart = indEnd;
-          }
-
-          // while ((match = word.exec(text)) !== null) {
-          //   indEnd = word.lastIndex;
-          //   result += text
-          //     .substring(indStart, indEnd)
-          //     .replace(match[0], wrapStart + match[0] + wrapEnd);
-          //   this._found++;
-          //   if (this.settings.max && this._found === this.settings.max) {
-          //     break;
-          //   }
-          //   indStart = indEnd;
-          // }
-        } catch (err) {
-          _iterator.e(err);
-        } finally {
-          _iterator.f();
-        }
-        result += text.substring(indEnd);
-      }
-      console.log(element);
-      if (element.append) {
-        element.innerHTML = '\n' + result;
-      } else {
-        // must be wrapped
-        var span = document.createElement('span');
-        span.innerHTML = '\n' + result + '\n';
-        element.parentNode.replaceChild(span, element);
-        element = span;
-      }
-      return element;
-    }
-  }, {
-    key: "_childNodesAllowed",
-    value: function _childNodesAllowed(node) {
-      var ignore = true;
-      var name = node.nodeName.toLowerCase();
-      if ('script' === name || 'textarea' === name) {
-        ignore = false;
-      }
-      return ignore;
-    }
-  }, {
-    key: "_hlSection",
-    value: function _hlSection(element) {
-      var _this2 = this;
-      var text = (element.innerText || element.textContent).trim();
-      if ('' === text || this.settings.max && this._found >= this.settings.max) {
-        return;
-      }
-      var children = element.childNodes;
-      if ((1 === element.nodeType && 0 === element.children.length || 0 === children.length) && this._hasWord(text)) {
-        var el = this._wrapWords(element);
-        // this.collection.push(element);
-        if (this.settings.highlightSection && !el.classList.contains(this.settings.sectionClassName)) {
-          el.classList.add(this.settings.sectionClassName);
-        }
-        return;
-      }
-      children.forEach(function (child) {
-        if (_this2._childNodesAllowed(child)) {
-          _this2._hlSection(child);
-        }
-      });
+      return text.match(regex) ? true : false;
     }
 
     /**
-     * Highlight the word for the given element
+     * check if the given node allowed nodes
      *
-     * @param {*} word
-     * @param {*} [element=this.element]
-     * @memberof Highlighter
+     * @param {*} node the node to test
+     * @return {boolean} if the given node is allowed or not
+     * @memberof TextHighlight
      */
   }, {
-    key: "_hl",
-    value: function _hl(word) {
-      var element = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this.element;
-      if (!word) {
+    key: "_isNodesAllowed",
+    value: function _isNodesAllowed(node) {
+      var name = node.nodeName.toLowerCase();
+      return !name.match(this.notAllowedNodes);
+    }
+
+    /**
+     *
+     *
+     * @param {*} element the parent-element of the found text
+     * @param {*} regex the text to search for
+     * @return {*}
+     * @memberof TextHighlight
+     */
+  }, {
+    key: "_markText",
+    value: function _markText(element, regex) {
+      if (!element.data) {
         return;
       }
-      if (Array.isArray(word)) {
-        // todo join only if minInput legth reached
-        word = word.join('|');
-      } else {
-        // todo test regexMode with regex ;)
-        var regexMode = '/' === word[0] && '/' === word[word.length - 1];
-        var len = word.length - (regexMode ? 2 : 0);
-        if (regexMode) {
-          word = word.substring(1, word.length - 1);
+      var pa = element.parentNode;
+      var result = '';
+      var str = element.data;
+      var marked = 0;
+      while (str && null !== (result = regex.exec(str))) {
+        var el = document.createElement('span');
+        el.className = this.settings.className;
+        el.appendChild(document.createTextNode(result[0]));
+        element.replaceData(result.index, result[0].length, '');
+        element = element.splitText(result.index);
+        marked++;
+        str = element.data;
+
+        // mark as beeing used
+        el.dataset['marked-' + this.rand] = true;
+        if (str) {
+          pa.insertBefore(el, element);
         } else {
-          word = word.replace(/([()[{*+.$^\\|?])/g, '\\$1');
+          pa.appendChild(el);
+          break;
+        }
+      }
+      return marked;
+    }
+  }, {
+    key: "_replaceText",
+    value: function _replaceText(element, regex, newWord) {
+      if (!element.data) {
+        return;
+      }
+      var str = element.data;
+      var found = 0;
+      var match = str.match(regex);
+      if (!match) {
+        return;
+      }
+      found += match.length;
+      str = str.replaceAll(regex, newWord);
+      if (element.data && 3 === element.nodeType) {
+        element.data = str;
+      }
+      return found;
+    }
+
+    /**
+     * finds all word/texts within the main element (search area)
+     * skips not allowed nodes.
+     *
+     * @param {*} element the parent-element within which to search
+     * @param {*} regex the text to search for
+     * @return {*}
+     * @memberof TextHighlight
+     */
+  }, {
+    key: "_find",
+    value: function _find(element, regex) {
+      if (!element || element.dataset['marked-' + this.rand] || this.settings.max && this._found >= this.settings.max) {
+        return;
+      }
+      element = element.firstChild;
+      while (null !== element && this._isNodesAllowed(element)) {
+        if (3 === element.nodeType) {
+          if (this._hasWord(element, regex)) {
+            var found = this.fun(element, regex);
+            // let found = this._markText(element, regex);
+            this._found += found;
+            // this.collection.push(element);
+            var parent = element.parentElement;
+            if (this.settings.highlightSection && !parent.classList.contains(this.settings.sectionClassName)) {
+              parent.classList.add(this.settings.sectionClassName);
+            }
+          }
+        } else {
+          this._find(element, regex);
+        }
+        element = element.nextSibling;
+      }
+    }
+  }, {
+    key: "_createRegexFromInput",
+    value: function _createRegexFromInput(input) {
+      var regexMode = false;
+      if (Array.isArray(input)) {
+        // todo join only if minInput legth reached
+        input = input.join('|');
+      } else {
+        input = input.toString();
+        var firstInd = input.indexOf('/');
+        var lastInd = input.lastIndexOf('/');
+        if (firstInd >= 0 && lastInd > firstInd) {
+          regexMode = true;
+          var flagtmp = input.substr(lastInd + 1);
+          input = input.substr(firstInd + 1, lastInd - 1);
+          if (flagtmp.indexOf('i') >= 0) {
+            this.settings.caseSensitive = false;
+          } else {
+            this.settings.caseSensitive = true;
+          }
+        } else {
+          input = input.replace(/([()[{*+.$^\\|?])/g, '\\$1');
           if (this.settings.fullwordonly) {
-            word = '\\b' + word + '\\b';
+            input = '\\b' + input + '\\b';
             this.settings.markwholeWord = false;
           }
           if (this.settings.markwholeWord) {
-            word = '\\w*' + word + '\\w*';
+            input = '\\w*' + input + '\\w*';
           }
         }
-        if (len < this.settings.minInput) {
-          this.reset();
-          return;
+        var len = input.length; //- (regexMode ? 2 : 0);
+
+        if (len < this.settings.minInput || this.settings.maxInput && len > this.settings.maxInput || regexMode && input.length <= 2 && input.indexOf('.') >= 0) {
+          return false;
         }
       }
       var flags = this.settings.caseSensitive ? 'g' : 'gi';
-      this.word = new RegExp(word, flags);
-      this._hlSection(element, this.word);
+      var regex = new RegExp(input, flags);
+      return regex;
+    }
+
+    /**
+     * Contruct the regex for word searching
+     *
+     * @param {*} element the parent-element within which to search
+     * @param {*} word the text to search for
+     * @return {*}
+     * @memberof TextHighlight
+     */
+  }, {
+    key: "_start",
+    value: function _start(element) {
+      var word = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      if (!element || null === word) {
+        return;
+      }
+      var regex = this._createRegexFromInput(word);
+      if (regex) {
+        this._find(element, regex);
+      } else {
+        this.reset();
+      }
     }
 
     /**
      * Update the word
      *
-     * @param {*} word
+     * @param {*} word the text to search for
      * @memberof Highlighter
      */
   }, {
-    key: "update",
-    value: function update(word) {
+    key: "highlight",
+    value: function highlight(word) {
       this.reset();
-      this._hl(word);
+      if (!word || word === this.input) {
+        return;
+      }
+      // store original input
+      this.input = word;
+      this.fun = this._markText;
+      this._start(this.element, word);
+    }
+
+    /**
+     * delete word
+     *
+     * @param {*} word
+     * @memberof TextHighlight
+     */
+  }, {
+    key: "delete",
+    value: function _delete(word) {
+      this.replace(word, '');
+    }
+
+    /**
+     * replace word
+     *
+     * @param {*} word
+     * @param {*} newWord
+     * @return {*}
+     * @memberof TextHighlight
+     */
+  }, {
+    key: "replace",
+    value: function replace(word, newWord) {
+      var _this = this;
+      if (!word || !newWord || word === this.input) {
+        return;
+      }
+
+      // store original input
+      this.input = word;
+      this.fun = function (element, regex) {
+        return _this._replaceText(element, regex, newWord);
+      };
+      this._start(this.element, word, newWord);
     }
 
     /**
@@ -204,16 +285,23 @@ var TextHighlight = /*#__PURE__*/function () {
   }, {
     key: "reset",
     value: function reset() {
-      var _this3 = this;
-      this.element.querySelectorAll('.' + this.settings.className).forEach(function (el) {
-        if (el.parentElement) {
-          var text = el.parentElement.innerText;
-          el.parentElement.innerText = text;
+      var _this2 = this;
+      this.element
+      // .querySelectorAll('.' + this.settings.className)
+      .querySelectorAll('[data-marked-' + this.rand + ']').forEach(function (el) {
+        var parent = el.parentElement;
+        var text;
+        if (el.childNodes.length > 1) {
+          text = el.innerText;
+        } else {
+          text = el.childNodes[0].data;
         }
+        parent.replaceChild(document.createTextNode(text), el);
+        parent.normalize();
       });
       if (this.settings.highlightSection) {
         this.element.querySelectorAll('.' + this.settings.sectionClassName).forEach(function (el) {
-          el.classList.remove(_this3.settings.sectionClassName);
+          el.classList.remove(_this2.settings.sectionClassName);
         });
       }
       this._found = 0;
@@ -222,7 +310,7 @@ var TextHighlight = /*#__PURE__*/function () {
     /**
      * returns the number of found words
      *
-     * @return {*}
+     * @return {*} Number of found items within the main element (search area)
      * @memberof TextHighlight
      */
   }, {
@@ -245,7 +333,7 @@ var TextHighlight = /*#__PURE__*/function () {
       }
       var word = this.settings.word;
       if (word) {
-        this._hl(word);
+        this._start(this.element, word);
       }
     }
   }]);
@@ -254,10 +342,13 @@ var TextHighlight = /*#__PURE__*/function () {
 TextHighlight.defaults = {
   autoinit: true,
   word: null,
-  max: 100,
+  replace: null,
+  max: null,
   // max elements to highlight
   minInput: 2,
   // min input to trigger highlight
+  maxInput: null,
+  // max input to trigger highlight
   caseSensitive: false,
   fullwordonly: false,
   // mark only if the full word is given
@@ -267,6 +358,6 @@ TextHighlight.defaults = {
   highlightSection: false,
   sectionClassName: 'section-highlight'
 };
-/* harmony default export */ __webpack_exports__.c = (TextHighlight);
-var __webpack_exports__default = __webpack_exports__.c;
+/* harmony default export */ __webpack_exports__.A = (TextHighlight);
+var __webpack_exports__default = __webpack_exports__.A;
 export { __webpack_exports__default as default };
