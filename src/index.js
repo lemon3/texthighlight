@@ -16,7 +16,7 @@ class TextHighlight {
     this.element = element;
     this._found = 0;
 
-    this.rand = (Math.random() * 1000000) << 0;
+    this._rand = (Math.random() * 1000000) << 0;
 
     if (this.settings.autoinit) {
       this.init();
@@ -34,6 +34,9 @@ class TextHighlight {
    * @memberof TextHighlight
    */
   _hasWord(element, regex) {
+    if (!element || !element.textContent || null === regex || '' === regex) {
+      return false;
+    }
     const text = element.textContent;
     if (!element.textContent.trim()) {
       return false;
@@ -61,14 +64,14 @@ class TextHighlight {
    * @return {*}
    * @memberof TextHighlight
    */
-  _markText(element, regex) {
-    if (!element.data) {
-      return;
+  _markText(textNode, regex) {
+    let str = textNode.data;
+    if (!str) {
+      return false;
     }
 
-    const pa = element.parentNode;
+    const pa = textNode.parentNode;
     let result = '';
-    let str = element.data;
     let marked = 0;
 
     while (str && null !== (result = regex.exec(str))) {
@@ -76,19 +79,21 @@ class TextHighlight {
       el.className = this.settings.className;
 
       el.appendChild(document.createTextNode(result[0]));
-      element.replaceData(result.index, result[0].length, '');
-      element = element.splitText(result.index);
+      textNode.replaceData(result.index, result[0].length, '');
+      textNode = textNode.splitText(result.index);
       marked++;
-      str = element.data;
+      str = textNode.data;
 
       // mark as beeing used
-      el.dataset['marked-' + this.rand] = true;
+      el.dataset['marked-' + this._rand] = true;
 
-      if (str) {
-        pa.insertBefore(el, element);
-      } else {
-        pa.appendChild(el);
-        break;
+      if (pa) {
+        if (str) {
+          pa.insertBefore(el, textNode);
+        } else {
+          pa.appendChild(el);
+          break;
+        }
       }
     }
 
@@ -96,16 +101,16 @@ class TextHighlight {
   }
 
   _replaceText(element, regex, newWord) {
-    if (!element.data) {
-      return;
+    let str = element.data;
+    if (!str) {
+      return false;
     }
 
-    let str = element.data;
     let found = 0;
     let match = str.match(regex);
 
     if (!match) {
-      return;
+      return false;
     }
     found += match.length;
     str = str.replaceAll(regex, newWord);
@@ -129,7 +134,7 @@ class TextHighlight {
   _find(element, regex) {
     if (
       !element ||
-      element.dataset['marked-' + this.rand] ||
+      element.dataset['marked-' + this._rand] ||
       (this.settings.max && this._found >= this.settings.max)
     ) {
       return;
@@ -140,9 +145,7 @@ class TextHighlight {
       if (3 === element.nodeType) {
         if (this._hasWord(element, regex)) {
           let found = this.fun(element, regex);
-          // let found = this._markText(element, regex);
           this._found += found;
-          // this.collection.push(element);
           let parent = element.parentElement;
           if (
             this.settings.highlightSection &&
@@ -239,14 +242,15 @@ class TextHighlight {
    */
   highlight(word) {
     this.reset();
-    if (!word || word === this.input) {
+    if (!word || word === this._lastInput) {
       return;
     }
     // store original input
-    this.input = word;
+    this._lastInput = word;
 
     this.fun = this._markText;
     this._start(this.element, word);
+    return this;
   }
 
   /**
@@ -256,7 +260,7 @@ class TextHighlight {
    * @memberof TextHighlight
    */
   delete(word) {
-    this.replace(word, '');
+    return this.replace(word, '');
   }
 
   /**
@@ -268,15 +272,16 @@ class TextHighlight {
    * @memberof TextHighlight
    */
   replace(word, newWord) {
-    if (!word || !newWord || word === this.input) {
+    if (!word || !newWord || word === this._lastInput) {
       return;
     }
 
     // store original input
-    this.input = word;
+    this._lastInput = word;
 
     this.fun = (element, regex) => this._replaceText(element, regex, newWord);
     this._start(this.element, word, newWord);
+    return this;
   }
 
   /**
@@ -287,7 +292,7 @@ class TextHighlight {
   reset() {
     this.element
       // .querySelectorAll('.' + this.settings.className)
-      .querySelectorAll('[data-marked-' + this.rand + ']')
+      .querySelectorAll('[data-marked-' + this._rand + ']')
       .forEach((el) => {
         const parent = el.parentElement;
         let text;
