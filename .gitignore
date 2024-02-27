@@ -1,9 +1,10 @@
-_notes
 *.sublime-*
-.vscode
+*.tgz
 .DS_Store
 .phpintel
+.vscode
+_notes
+coverage
 node_modules
 yarn-error.log
 yarn.lock
-*.tgz

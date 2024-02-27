@@ -2,21 +2,25 @@ class TextHighlight {
   constructor(element, options) {
     if (!element) {
       element = document.body;
+    } else if ('string' === typeof element) {
+      element = document.querySelector(element);
     }
 
-    element =
-      'string' === typeof element ? document.querySelector(element) : element;
-
-    if (null === element || 0 === element.length) {
+    if (
+      null === element ||
+      0 === element.length ||
+      (options && 'object' !== typeof options)
+    ) {
       return { error: true };
     }
 
     this.options = options || {}; // user options
     this.settings = Object.assign({}, TextHighlight.defaults, options);
     this.element = element;
-    this._found = 0;
 
+    this._found = 0;
     this._rand = (Math.random() * 1000000) << 0;
+    this.fun = this._markText;
 
     if (this.settings.autoinit) {
       this.init();
@@ -34,13 +38,16 @@ class TextHighlight {
    * @memberof TextHighlight
    */
   _hasWord(element, regex) {
-    if (!element || !element.textContent || null === regex || '' === regex) {
+    if (
+      !element ||
+      !element.textContent ||
+      !element.textContent.trim() ||
+      null === regex ||
+      '' === regex
+    ) {
       return false;
     }
     const text = element.textContent;
-    if (!element.textContent.trim()) {
-      return false;
-    }
     return text.match(regex) ? true : false;
   }
 
@@ -65,16 +72,20 @@ class TextHighlight {
    * @memberof TextHighlight
    */
   _markText(textNode, regex) {
-    let str = textNode.data;
-    if (!str) {
-      return false;
+    if (!textNode || 'undefined' === typeof textNode.data) {
+      return 0;
     }
 
+    let str = textNode.data;
     const pa = textNode.parentNode;
     let result = '';
     let marked = 0;
 
     while (str && null !== (result = regex.exec(str))) {
+      if (this.settings.max && marked >= this.settings.max) {
+        return marked;
+      }
+
       let el = document.createElement('span');
       el.className = this.settings.className;
 
@@ -87,37 +98,39 @@ class TextHighlight {
       // mark as beeing used
       el.dataset['marked-' + this._rand] = true;
 
-      if (pa) {
-        if (str) {
-          pa.insertBefore(el, textNode);
-        } else {
-          pa.appendChild(el);
-          break;
-        }
+      // if (pa) {
+      if (str) {
+        pa.insertBefore(el, textNode);
+      } else {
+        pa.appendChild(el);
+        break;
       }
+      // }
     }
 
     return marked;
   }
 
-  _replaceText(element, regex, newWord) {
-    let str = element.data;
-    if (!str) {
-      return false;
+  _replaceText(textNode, regex, newWord) {
+    if (!textNode || 'undefined' === typeof textNode.data) {
+      return 0;
     }
 
+    let str = textNode.data;
     let found = 0;
     let match = str.match(regex);
 
     if (!match) {
-      return false;
+      return 0;
     }
     found += match.length;
-    str = str.replaceAll(regex, newWord);
 
-    if (element.data && 3 === element.nodeType) {
-      element.data = str;
+    if ('undefined' === typeof newWord) {
+      newWord = '';
     }
+
+    str = str.replaceAll(regex, newWord);
+    textNode.data = str;
 
     return found;
   }
@@ -132,16 +145,17 @@ class TextHighlight {
    * @memberof TextHighlight
    */
   _find(element, regex) {
-    if (
-      !element ||
-      element.dataset['marked-' + this._rand] ||
-      (this.settings.max && this._found >= this.settings.max)
-    ) {
-      return;
+    // console.log(this.settings.max, this._found, this.settings.max);
+    if (!element || element.dataset['marked-' + this._rand]) {
+      return false;
     }
 
     element = element.firstChild;
-    while (null !== element && this._isNodesAllowed(element)) {
+    while (
+      null !== element &&
+      this._isNodesAllowed(element) &&
+      (!this.settings.max || this._found < this.settings.max)
+    ) {
       if (3 === element.nodeType) {
         if (this._hasWord(element, regex)) {
           let found = this.fun(element, regex);
@@ -160,51 +174,54 @@ class TextHighlight {
 
       element = element.nextSibling;
     }
+
+    return this._found;
   }
 
   _createRegexFromInput(input) {
     let regexMode = false;
 
-    if (Array.isArray(input)) {
-      // todo join only if minInput legth reached
-      input = input.join('|');
-    } else {
-      input = input.toString();
+    // if (Array.isArray(input)) {
+    //   // todo join only if minInput legth reached
+    //   input = input.join('|');
+    // } else {
 
-      let firstInd = input.indexOf('/');
-      let lastInd = input.lastIndexOf('/');
+    input = input.toString();
 
-      if (firstInd >= 0 && lastInd > firstInd) {
-        regexMode = true;
-        let flagtmp = input.substr(lastInd + 1);
-        input = input.substr(firstInd + 1, lastInd - 1);
-        if (flagtmp.indexOf('i') >= 0) {
-          this.settings.caseSensitive = false;
-        } else {
-          this.settings.caseSensitive = true;
-        }
+    let firstInd = input.indexOf('/');
+    let lastInd = input.lastIndexOf('/');
+
+    if (firstInd >= 0 && lastInd > firstInd) {
+      regexMode = true;
+      let flagtmp = input.substr(lastInd + 1);
+      input = input.substr(firstInd + 1, lastInd - 1);
+      if (flagtmp.indexOf('i') >= 0) {
+        this.settings.caseSensitive = false;
       } else {
-        input = input.replace(/([()[{*+.$^\\|?])/g, '\\$1');
-
-        if (this.settings.fullwordonly) {
-          input = '\\b' + input + '\\b';
-          this.settings.markwholeWord = false;
-        }
-        if (this.settings.markwholeWord) {
-          input = '\\w*' + input + '\\w*';
-        }
+        this.settings.caseSensitive = true;
       }
+    } else {
+      input = input.replace(/([()[{*+.$^\\|?])/g, '\\$1');
 
-      const len = input.length; //- (regexMode ? 2 : 0);
-
-      if (
-        len < this.settings.minInput ||
-        (this.settings.maxInput && len > this.settings.maxInput) ||
-        (regexMode && input.length <= 2 && input.indexOf('.') >= 0)
-      ) {
-        return false;
+      if (this.settings.fullwordonly) {
+        input = '\\b' + input + '\\b';
+        this.settings.markwholeWord = false;
+      }
+      if (this.settings.markwholeWord) {
+        input = '\\w*' + input + '\\w*';
       }
     }
+
+    const len = input.length; //- (regexMode ? 2 : 0);
+
+    if (
+      len < this.settings.minInput ||
+      (this.settings.maxInput && len > this.settings.maxInput) ||
+      (regexMode && input.length <= 2 && input.indexOf('.') >= 0)
+    ) {
+      return false;
+    }
+    // }
 
     let flags = this.settings.caseSensitive ? 'g' : 'gi';
     let regex = new RegExp(input, flags);
@@ -222,11 +239,10 @@ class TextHighlight {
    */
   _start(element, word = null) {
     if (!element || null === word) {
-      return;
+      return false;
     }
 
     const regex = this._createRegexFromInput(word);
-
     if (regex) {
       this._find(element, regex);
     } else {
@@ -243,7 +259,7 @@ class TextHighlight {
   highlight(word) {
     this.reset();
     if (!word || word === this._lastInput) {
-      return;
+      return false;
     }
     // store original input
     this._lastInput = word;
@@ -272,8 +288,8 @@ class TextHighlight {
    * @memberof TextHighlight
    */
   replace(word, newWord) {
-    if (!word || !newWord || word === this._lastInput) {
-      return;
+    if (!word || 'string' !== typeof newWord || word === this._lastInput) {
+      return false;
     }
 
     // store original input
@@ -296,16 +312,20 @@ class TextHighlight {
       .forEach((el) => {
         const parent = el.parentElement;
         let text;
-        if (el.childNodes.length > 1) {
-          text = el.innerText;
-        } else {
-          text = el.childNodes[0].data;
-        }
+        // if (el.childNodes.length > 1) {
+        //   text = el.innerText;
+        // } else {
+        text = el.childNodes[0].data;
+        // }
         parent.replaceChild(document.createTextNode(text), el);
         parent.normalize();
       });
 
     if (this.settings.highlightSection) {
+      if (this.element.classList.contains(this.settings.sectionClassName)) {
+        this.element.classList.remove(this.settings.sectionClassName);
+      }
+
       this.element
         .querySelectorAll('.' + this.settings.sectionClassName)
         .forEach((el) => {
@@ -313,6 +333,7 @@ class TextHighlight {
         });
     }
 
+    this._lastInput = null;
     this._found = 0;
   }
 
@@ -334,8 +355,9 @@ class TextHighlight {
    */
   init() {
     if (this.initialized) {
-      return true;
+      return this;
     }
+    this.initialized = true;
 
     const word = this.settings.word;
     if (word) {

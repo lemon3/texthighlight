@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.2.2
+- add tests
+
 ## v0.2.1
 - optimization
 - add regex support
