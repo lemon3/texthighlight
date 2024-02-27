@@ -16,6 +16,14 @@
     "coverage": "jest --coverage",
     "browserslistupdate": "npx update-browserslist-db@latest"
   },
+  "files": [
+    "LICENSE",
+    "dist",
+    "index.js",
+    "package.json",
+    "CHANGELOG.md",
+    "README.md"
+  ],
   "devDependencies": {
     "@babel/core": "^7.23.9",
     "@babel/plugin-transform-class-properties": "^7.23.3",
