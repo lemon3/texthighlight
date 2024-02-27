@@ -3,7 +3,7 @@ const paths = require('./paths');
 
 module.exports = {
   entry: {
-    texthighlight: ['@/texthighlight.js'],
+    texthighlight: ['@/index.js'],
   },
 
   output: {
