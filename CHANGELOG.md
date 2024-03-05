@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.2.3
+- docs (demo) update
+
 ## v0.2.2
 - add tests
 

@@ -9,6 +9,7 @@ import TextHighlight from '../src/index.js';
 // Set up our document body
 const resetDOM = () => {
   const content = `
+
     <div id="test">
       Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sunt, nostrum sor!
     </div>

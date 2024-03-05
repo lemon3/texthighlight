@@ -21,7 +21,7 @@ module.exports = {
   },
 
   resolve: {
-    modules: [paths.src, 'node_modules'],
+    // modules: [paths.src, 'node_modules'],
     extensions: ['.js', '.jsx', '.json'],
     alias: {
       '@': paths.src,

@@ -4,7 +4,7 @@ const { merge } = require('webpack-merge');
 const common = require('./webpack.common');
 const settings = require('../package.json');
 
-const currentYear = (new Date()).getUTCFullYear();
+const currentYear = new Date().getUTCFullYear();
 const banner = `author:  ${settings.author}
 version: ${settings.version}
 (c) 2014-${currentYear} - lemon3.at`;

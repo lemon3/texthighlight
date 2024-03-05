@@ -97,14 +97,15 @@ class TextHighlight {
 
       // mark as beeing used
       el.dataset['marked-' + this._rand] = true;
+      pa.insertBefore(el, textNode);
 
       // if (pa) {
-      if (str) {
-        pa.insertBefore(el, textNode);
-      } else {
-        pa.appendChild(el);
-        break;
-      }
+      // if (str) {
+      //   pa.insertBefore(el, textNode);
+      // } else {
+      //   pa.appendChild(el);
+      //   break;
+      // }
       // }
     }
 
