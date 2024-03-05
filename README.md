@@ -1,4 +1,7 @@
 # TextHighlight
+## demo
+[texthighlight demo >]([https://](https://lemon3.github.io/texthighlight/))
+
 ## usage
 default usage:
 ```js

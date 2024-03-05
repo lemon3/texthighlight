@@ -159,8 +159,6 @@ class TextHighlight {
             this._found += found;
             let parent = element.parentElement;
 
-            console.log(parent, parent.id);
-
             if (
               this.settings.highlightSection &&
               !parent.classList.contains(this.settings.sectionClassName)

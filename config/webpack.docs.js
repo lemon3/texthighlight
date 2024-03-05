@@ -35,6 +35,10 @@ module.exports = merge(common, {
       ],
     }),
 
-    new HtmlWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      title: 'Demo',
+      template: paths.src + '/template.html', // template file
+      minify: true,
+    }),
   ],
 });
