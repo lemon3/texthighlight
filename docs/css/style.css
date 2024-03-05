@@ -209,24 +209,28 @@ pre {
   font-size: 13px;
   line-height: 1.5em;
   margin-bottom: 2em;
+  box-shadow: 0 3px 7px -2px rgba(0,0,0,0.3);
 }
 
 .main-form {
   padding: 2em;
-  background: #333;
   margin-bottom: 1em;
+  background: #f6f6f6;
 }
 
 .main-form h3 {
   margin-top: 0;
 }
-
+.dark .main-form {
+  background: #333;
+}
 .page {
   margin: 0 auto;
   padding: 1em;
   max-width: 640px;
   width: 100%;
   text-align: justify;
+  position: relative;
 }
 
 #test {
@@ -249,8 +253,9 @@ pre {
   padding: 10px;
   background-color: #60d3f0;
   position: fixed;
-  top: 0;
-  right: 0;
+  box-shadow: 0px 4px 10px -2px rgba(0,0,0,0.5);
+  top: 10px;
+  right: 10px;
 }
 .panel p {
   margin: 0;
@@ -263,7 +268,7 @@ pre {
 }
 .panel input:focus {
   outline: none;
-  box-shadow: 0px 2px 6px 0px rgb(15 24 89 / 30%);
+  box-shadow: 0px 0px 6px 0px rgb(15 24 89 / 20%);
 }
 .section-highlight {
   background-color: aliceblue;
@@ -273,13 +278,30 @@ textarea {
   margin: 1em 0;
 }
 
+#modeSwitch {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  padding: 20px;
+  line-height: 0;
+  background: #e2e2e2;
+  border-radius: 50%;
+  box-shadow: 0px 4px 10px -2px rgba(0,0,0,0.5);
+  cursor: pointer;
+  transition: box-shadow ease-out 0.25s;
+}
+
+#modeSwitch:hover {
+  box-shadow: 0px 4px 10px -2px rgba(0, 240, 0, .7);
+}
+
 /* dark mode */
-body.dark {
+.dark {
   background-color: #222;
   color: #e4e4e4;
 }
 
-body.dark .panel {
+.dark .panel {
   background-color: #275b68;
   color: #eee;
 }
