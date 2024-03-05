@@ -7,8 +7,6 @@ module.exports = {
   // Production build files
   build: path.resolve(__dirname, '../dist'),
 
-  demo: path.resolve(__dirname, '../demo'),
-
   docs: path.resolve(__dirname, '../docs'),
 
   public: path.resolve(__dirname, '../public'),

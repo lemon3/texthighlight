@@ -6,11 +6,7 @@ class TextHighlight {
       element = document.querySelector(element);
     }
 
-    if (
-      null === element ||
-      0 === element.length ||
-      (options && 'object' !== typeof options)
-    ) {
+    if (null === element || (options && 'object' !== typeof options)) {
       return { error: true };
     }
 
@@ -27,7 +23,7 @@ class TextHighlight {
     }
   }
 
-  notAllowedNodes = /script|textarea|input/;
+  notAllowedNodes = /script|textarea|input|pre|code/;
 
   /**
    * check if given element contains the given input word
@@ -146,7 +142,7 @@ class TextHighlight {
    * @memberof TextHighlight
    */
   _find(element, regex) {
-    // console.log(this.settings.max, this._found, this.settings.max);
+    // console.log(this.settings.max, this._found);
     if (!element || element.dataset['marked-' + this._rand]) {
       return false;
     }
@@ -154,23 +150,27 @@ class TextHighlight {
     element = element.firstChild;
     while (
       null !== element &&
-      this._isNodesAllowed(element) &&
       (!this.settings.max || this._found < this.settings.max)
     ) {
-      if (3 === element.nodeType) {
-        if (this._hasWord(element, regex)) {
-          let found = this.fun(element, regex);
-          this._found += found;
-          let parent = element.parentElement;
-          if (
-            this.settings.highlightSection &&
-            !parent.classList.contains(this.settings.sectionClassName)
-          ) {
-            parent.classList.add(this.settings.sectionClassName);
+      if (this._isNodesAllowed(element)) {
+        if (3 === element.nodeType) {
+          if (this._hasWord(element, regex)) {
+            let found = this.fun(element, regex);
+            this._found += found;
+            let parent = element.parentElement;
+
+            console.log(parent, parent.id);
+
+            if (
+              this.settings.highlightSection &&
+              !parent.classList.contains(this.settings.sectionClassName)
+            ) {
+              parent.classList.add(this.settings.sectionClassName);
+            }
           }
+        } else {
+          this._find(element, regex);
         }
-      } else {
-        this._find(element, regex);
       }
 
       element = element.nextSibling;
@@ -360,9 +360,9 @@ class TextHighlight {
     }
     this.initialized = true;
 
-    const word = this.settings.word;
-    if (word) {
-      this._start(this.element, word);
+    const search = this.settings.search;
+    if (search) {
+      this._start(this.element, search);
     }
   }
 }
@@ -370,7 +370,7 @@ class TextHighlight {
 // default options
 TextHighlight.defaults = {
   autoinit: true,
-  word: null,
+  search: null,
   replace: null,
   max: null, // max elements to highlight
   minInput: 2, // min input to trigger highlight

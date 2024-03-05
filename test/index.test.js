@@ -9,7 +9,6 @@ import TextHighlight from '../src/index.js';
 // Set up our document body
 const resetDOM = () => {
   const content = `
-
     <div id="test">
       Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sunt, nostrum sor!
     </div>
@@ -439,7 +438,7 @@ describe('option testing', () => {
     test('parent element should contain section classname', () => {
       resetDOM();
       const options = {
-        word: 'ipsum',
+        search: 'ipsum',
         highlightSection: true,
       };
       const element = document.querySelector('#test');
@@ -493,7 +492,7 @@ describe('option testing', () => {
       resetDOM();
       const options = {
         fullwordonly: true,
-        word: 'lorem',
+        search: 'lorem',
       };
       const element = document.querySelector('#test');
       const th = new TextHighlight(element, options);
@@ -507,7 +506,7 @@ describe('option testing', () => {
       resetDOM();
       const options = {
         markwholeWord: true,
-        word: 'ore',
+        search: 'ore',
       };
       const element = document.querySelector('#test');
       const th = new TextHighlight(element, options);

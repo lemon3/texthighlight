@@ -1,3 +1,157 @@
+/*
+*  html5resetcss
+*/
+html,
+body,
+div,
+span,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+abbr,
+address,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+samp,
+small,
+strong,
+sub,
+sup,
+var,
+b,
+i,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  font-size: 100%;
+  vertical-align: baseline;
+  background: transparent;
+}
+body {
+  line-height: 1;
+}
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+  display: block;
+}
+nav ul {
+  list-style: none;
+}
+blockquote,
+q {
+  quotes: none;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: none;
+}
+a {
+  margin: 0;
+  padding: 0;
+  font-size: 100%;
+  vertical-align: baseline;
+  background: transparent;
+}
+ins {
+  background-color: #ff9;
+  color: #000;
+  text-decoration: none;
+}
+mark {
+  background-color: #ff9;
+  color: #000;
+  font-style: italic;
+  font-weight: bold;
+}
+del {
+  text-decoration: line-through;
+}
+abbr[title],
+dfn[title] {
+  border-bottom: 1px dotted;
+  cursor: help;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin: 1em 0;
+  padding: 0;
+}
+input,
+select {
+  vertical-align: middle;
+}
+
+/* end reset */
+
 * {
   box-sizing: border-box;
 }
@@ -8,6 +162,65 @@ body {
   font-size: 16px;
   line-height: 1.6em;
 }
+
+h1 {
+  font-size: 2em;
+  margin: 1em 0;
+}
+
+h2 {
+  font-size: 1.6em;
+  margin: 1em 0;
+}
+
+h2 {
+  font-size: 1.4em;
+  margin: 1em 0;
+}
+
+p {
+  margin-bottom: 1em;
+}
+
+input {
+  display: block;
+  border: 1px solid #333;
+  font-size: 16px;
+  padding: 0.5em 1em;
+  margin-bottom: 1em;
+}
+
+figure {
+  padding: 0;
+  margin: 0 0 1em 0;
+}
+
+figure img {
+  width: 100%;
+  max-width: 100%;
+  font-size: 13px;
+}
+
+figcaption {
+  text-align: center;
+}
+
+pre {
+  font-size: 13px;
+  line-height: 1.5em;
+  margin-bottom: 2em;
+}
+
+.main-form {
+  padding: 2em;
+  background: #333;
+  margin-bottom: 1em;
+}
+
+.main-form h3 {
+  margin-top: 0;
+}
+
 .page {
   margin: 0 auto;
   padding: 1em;
@@ -15,6 +228,7 @@ body {
   width: 100%;
   text-align: justify;
 }
+
 #test {
   padding-top: 20px;
   position: relative;
@@ -28,13 +242,13 @@ body {
   color: #333;
 }
 .highlight2 {
-  background-color: rgb(175, 231, 198);
-  color: #333;
+  background-color: rgb(58, 240, 125);
+  color: #191919;
 }
 .panel {
   padding: 10px;
   background-color: #60d3f0;
-  position: absolute;
+  position: fixed;
   top: 0;
   right: 0;
 }
@@ -62,7 +276,7 @@ textarea {
 /* dark mode */
 body.dark {
   background-color: #222;
-  color: #a4a4a4;
+  color: #e4e4e4;
 }
 
 body.dark .panel {

@@ -1,6 +1,6 @@
 /*!
  * author:  wolfgang jungmayer
- * version: 0.2.2
+ * version: 0.2.4
  * (c) 2014-2024 - lemon3.at
  */
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -26,13 +26,13 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 var TextHighlight = /*#__PURE__*/function () {
   function TextHighlight(element, options) {
     _classCallCheck(this, TextHighlight);
-    _defineProperty(this, "notAllowedNodes", /script|textarea|input/);
+    _defineProperty(this, "notAllowedNodes", /script|textarea|input|pre|code/);
     if (!element) {
       element = document.body;
     } else if ('string' === typeof element) {
       element = document.querySelector(element);
     }
-    if (null === element || 0 === element.length || options && 'object' !== _typeof(options)) {
+    if (null === element || options && 'object' !== _typeof(options)) {
       return {
         error: true
       };
@@ -158,23 +158,26 @@ var TextHighlight = /*#__PURE__*/function () {
   }, {
     key: "_find",
     value: function _find(element, regex) {
-      // console.log(this.settings.max, this._found, this.settings.max);
+      // console.log(this.settings.max, this._found);
       if (!element || element.dataset['marked-' + this._rand]) {
         return false;
       }
       element = element.firstChild;
-      while (null !== element && this._isNodesAllowed(element) && (!this.settings.max || this._found < this.settings.max)) {
-        if (3 === element.nodeType) {
-          if (this._hasWord(element, regex)) {
-            var found = this.fun(element, regex);
-            this._found += found;
-            var parent = element.parentElement;
-            if (this.settings.highlightSection && !parent.classList.contains(this.settings.sectionClassName)) {
-              parent.classList.add(this.settings.sectionClassName);
+      while (null !== element && (!this.settings.max || this._found < this.settings.max)) {
+        if (this._isNodesAllowed(element)) {
+          if (3 === element.nodeType) {
+            if (this._hasWord(element, regex)) {
+              var found = this.fun(element, regex);
+              this._found += found;
+              var parent = element.parentElement;
+              console.log(parent, parent.id);
+              if (this.settings.highlightSection && !parent.classList.contains(this.settings.sectionClassName)) {
+                parent.classList.add(this.settings.sectionClassName);
+              }
             }
+          } else {
+            this._find(element, regex);
           }
-        } else {
-          this._find(element, regex);
         }
         element = element.nextSibling;
       }
@@ -363,9 +366,9 @@ var TextHighlight = /*#__PURE__*/function () {
         return this;
       }
       this.initialized = true;
-      var word = this.settings.word;
-      if (word) {
-        this._start(this.element, word);
+      var search = this.settings.search;
+      if (search) {
+        this._start(this.element, search);
       }
     }
   }]);
@@ -373,7 +376,7 @@ var TextHighlight = /*#__PURE__*/function () {
 }(); // default options
 TextHighlight.defaults = {
   autoinit: true,
-  word: null,
+  search: null,
   replace: null,
   max: null,
   // max elements to highlight
