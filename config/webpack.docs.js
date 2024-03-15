@@ -26,10 +26,12 @@ module.exports = merge(common, {
       patterns: [
         {
           from: paths.public + '/css',
-          to: paths.docs + '/css', // paths.build same as ''
-          globOptions: {
-            ignore: ['*.DS_Store'],
-          },
+          to: paths.docs + '/css',
+          noErrorOnMissing: true,
+        },
+        {
+          from: paths.public + '/assets',
+          to: paths.docs + '/assets',
           noErrorOnMissing: true,
         },
       ],

@@ -170,7 +170,6 @@ var TextHighlight = /*#__PURE__*/function () {
               var found = this.fun(element, regex);
               this._found += found;
               var parent = element.parentElement;
-              console.log(parent, parent.id);
               if (this.settings.highlightSection && !parent.classList.contains(this.settings.sectionClassName)) {
                 parent.classList.add(this.settings.sectionClassName);
               }
