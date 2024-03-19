@@ -61,26 +61,26 @@
       <h1>TextHighlight Demo</h1>
       <p>default usage:</p>
       <pre><code class="language-javascript">const thl = new TextHighlight(document.body, 'lorem');
-</code></pre>
+  </code></pre>
       <p>with options, and custom search element</p>
       <pre><code class="language-javascript">const options = {
-  autoinit: true,
-  search: 'met',
-  max: null, // max elements to highlight
-  minInput: 2, // min input to trigger highlight
-  maxInput: null, // max input to trigger highlight
-  caseSensitive: false,
-  fullwordonly: false, // mark only if the full word is given
-  markwholeWord: true, // mark the whole word (if a part is selected)
-  className: 'highlight2', // to style the highlight word
-  highlightSection: false, // ad a class to the wrapping html element
-  sectionClassName: 'section-highlight', // class name for the wrapping element
-};
+    autoinit: true,
+    search: 'met',
+    max: null, // max elements to highlight
+    minInput: 2, // min input to trigger highlight
+    maxInput: null, // max input to trigger highlight
+    caseSensitive: false,
+    fullwordonly: false, // mark only if the full word is given
+    markwholeWord: true, // mark the whole word (if a part is selected)
+    className: 'highlight2', // to style the highlight word
+    highlightSection: false, // ad a class to the wrapping html element
+    sectionClassName: 'section-highlight', // class name for the wrapping element
+  };
 
-// only search within this element (#myElement)
-const myElement = document.querySelector('#myElement', options);
-const thl = new TextHighlight(myElement, options);
-</code></pre>
+  // only search within this element (#myElement)
+  const myElement = document.querySelector('#myElement', options);
+  const thl = new TextHighlight(myElement, options);
+  </code></pre>
       <script>
         const initdemo = () => {
           const options = {
@@ -159,25 +159,29 @@ const thl = new TextHighlight(myElement, options);
       </p>
       <h2>Lorem ipsum dolor sit.</h2>
       <textarea name="" id="textarea" cols="30" rows="10">
-Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam optio totam ex hic inventore doloribus beatae neque obcaecati deserunt, maxime fuga, nisi corporis ducimus ab natus, exercitationem perferendis suscipit molestias.</textarea
+  Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam optio totam ex hic inventore doloribus beatae neque obcaecati deserunt, maxime fuga, nisi corporis ducimus ab natus, exercitationem perferendis suscipit molestias.</textarea
       >
       <script>
         const lorem = 'lorem';
       </script>
     </div>
 
-    <div class="panel">
-      <p>type here: <span id="found"></span></p>
-      <input
-        id="inp"
-        type="text"
-        placeholder="type here ..."
-        class="highlight-input"
-        value=""
-      />
-    </div>
+    <header id="header">
+      <div class="container">
+        <div id="modeSwitch"></div>
 
-    <div id="modeSwitch"></div>
+        <div class="panel">
+          <p>type here: <span id="found"></span></p>
+          <input
+            id="inp"
+            type="text"
+            placeholder="type here ..."
+            class="highlight-input"
+            value=""
+          />
+        </div>
+      </div>
+    </header>
 
     <script>
       const init = () => {
